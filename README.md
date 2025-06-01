@@ -2,7 +2,8 @@
 Forwards the stdin pipe to stdout in clumps separated by a time interval in the incoming data.
 
 ```
-$ Usage: clump --interval <seconds>[s] [--prefix <string>] [--suffix <string>]
+$ clump --help
+Usage: clump --interval <seconds>[s] [--prefix <string>] [--suffix <string>]
 
 Options:
   --interval <interval>   Time (in seconds) of no input before flushing.
