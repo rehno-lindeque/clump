@@ -34,6 +34,13 @@ parseInterval str =
             then Just (take (ls - lf) s)
             else Nothing
 
+-- Turn a “C-style” literal (with backslashes) into actual newlines, tabs, etc.
+unescape :: String -> Either String String
+unescape s =
+  case readMaybe ("\"" ++ s ++ "\"") of
+    Just v  -> Right v
+    Nothing -> Left  $ "Invalid escape‐sequence in: " ++ show s
+
 -- | Print usage and exit.
 usage :: IO a
 usage = do
@@ -66,8 +73,15 @@ parseArgs = do
           Just secs -> go rest (Just secs) mp mx
           Nothing   -> die $ "Invalid interval: " ++ iv
 
-      go ("--prefix" : p : rest) mi _ mx = go rest mi (Just p) mx
-      go ("--suffix" : x : rest) mi mp _ = go rest mi mp (Just x)
+      go ("--prefix" : rawPrefix : rest) mi _ mx =
+        case unescape rawPrefix of
+          Right actual -> go rest mi (Just actual) mx
+          Left err     -> die err
+
+      go ("--suffix" : rawSuffix : rest) mi mp _ =
+        case unescape rawSuffix of
+          Right actual -> go rest mi mp (Just actual)
+          Left err     -> die err
 
       go (opt : _) _ _ _ = die $ "Unrecognized option: " ++ opt
 
